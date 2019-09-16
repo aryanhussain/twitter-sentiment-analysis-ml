@@ -1,0 +1,192 @@
+<clr-main-container>
+  <div class="progress demo" *ngIf="loading">
+    <div class="progress loop"><progress></progress></div>
+  </div>
+  <clr-header class="header-4">
+    <div class="branding">
+      <a class="nav-link">
+        <div class="title">Hackathon Techno Wonders 2019</div>
+      </a>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" *ngIf="isDataAvailable" (click)="fetchTweet=false;tweet=null;">Data
+        Information</button>
+      <button class="btn btn-primary" *ngIf="isDataAvailable" (click)="fetchTweet=true;tweet=null;">Fetch
+        Tweets</button>
+    </div>
+  </clr-header>
+  <div class="content-container">
+    <main class="content-area">
+
+      <div class="clr-row clr-col-12" *ngIf="fetchTweet">
+        <div class=" clr-col-12">
+          <div class="card">
+            <div class="card-header">
+              Tweets
+              <button class="btn btn-primary" style="float: right;" *ngIf="tweetData && tweetData.length > 0"
+                (click)="getAllAnalysis()">Get Overall Tweets Sentiments</button>
+            </div>
+            <div class="card-block">
+              <div class="card-text">
+                <table class="table" *ngIf="tweetData">
+                  <thead>
+                    <tr>
+                      <th style="width: 70%">Tweets</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let body of tweetData">
+                      <td class="font-20">{{body.tweetText}}</td>
+                      <td> <button class="btn btn-sm" (click)="setValue(body.tweetText);selectedText=body.tweetText">Get
+                          Sentiment</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="card-block text-center" *ngIf="tweetData.length == 0">
+                  <p>No Data Found</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="clr-row clr-col-12" *ngIf="!fetchTweet">
+        <div class=" clr-col-12">
+          <div class="card">
+            <div class="card-header">
+              Dataset Information
+            </div>
+            <div class="card-block text-center" *ngIf="isDataAvailable && gridData.length > 0 && !loadingtweets"
+              style="height: 600px;overflow-y: auto">
+              <table class="table" *ngIf="gridData">
+                <thead>
+                  <tr>
+                    <th>Emotions</th>
+                    <th>Tweets</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let body of gridData">
+                    <td>
+                      <img src="./assets//images/Positive.png" alt="Positive" *ngIf="body.sentiment==='P'"
+                        style="height: 40px;width: 40px" />
+                      <img src="./assets//images/Negetive.png" alt="Negtive" *ngIf="body.sentiment==='N'"
+                        style="height: 40px;width: 40px" />
+                    </td>
+                    <td class="font-20">{{body.tweet}}</td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-block text-center" *ngIf="!isDataAvailable && gridData.length === 0 && !loadingtweets">
+              <p>No Dataset Found</p>
+            </div>
+            <div class="card-block text-center" *ngIf="loadingtweets">
+              <h4>Checking If Any Dataset Available...</h4>
+            </div>
+            <div class="card-footer text-center">
+              <!-- <button class="btn btn-sm" (click)="trainModel()"
+                *ngIf="isDataAvailable && !isDataVisualization && !loadingtweets">Train Model</button> -->
+              <button class="btn btn-sm" (click)="visualize()"
+                *ngIf="isDataAvailable && !isDataVisualization && !loadingtweets">Visualize Data</button>
+            </div>
+
+          </div>
+          <div class="card" *ngIf="isDataAvailable && gridData.length > 0 && isDataVisualization">
+            <div class="card-header">
+              Data Visualization
+            </div>
+            <div class="card-block text-center">
+              <img src="{{chart4}}" class="clr-col-6 border2px" />
+              <img src="{{chart5}}" class="clr-col-6 border2px" />
+              <img src="{{chart1}}" class="clr-col-6 border2px" />
+              <img src="{{chart3}}" class="clr-col-6 border2px" />
+              <img src="{{chart2}}" class="clr-col-12 border2px" />
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</clr-main-container>
+
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true">
+  <h3 class="modal-title text-center">{{selectedText}}</h3>
+  <div class="modal-body text-center clr-row">
+    <div class="clr-col-6" *ngIf="result && tweetSentiment !== 'IRRELEVANT'">
+      <img src="./assets/images/Positive.png" *ngIf="result" alt="Positive" style="height: 200px;width: 200px" />
+    </div>
+    <div class="clr-col-6" *ngIf="result && tweetSentiment !== 'IRRELEVANT'">
+      <img src="./assets/images/Negetive.png" *ngIf="result" alt="Negtive" style="height: 200px;width: 200px" />
+    </div>
+    <div class="clr-col-12" *ngIf="result && tweetSentiment === 'IRRELEVANT'">
+      <img src="./assets/images/Negetive.png" *ngIf="result" alt="Negtive" style="height: 200px;width: 200px" />
+    </div>
+    <div class="clr-col-6" style="margin-top: 4%;font-size: 20px;"> <span style="font-weight:bold;margin-top: 20px;"
+        *ngIf="result && tweetSentiment !== 'IRRELEVANT'">{{result[1] | number:'1.2-2'}} %</span>
+    </div>
+    <div class="clr-col-6" style="margin-top: 4%;font-size: 20px;"> <span
+        *ngIf="result && tweetSentiment !== 'IRRELEVANT'" style="font-weight:bold;">{{result[0] | number:'1.2-2'}}
+        %</span>
+    </div>
+    <div class="clr-col-12" style="margin-top: 7%;font-size: 20px;"> <span *ngIf="result && tweetSentiment"
+        style="font-weight:bold;">Tweet seems to be {{tweetSentiment}}</span>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="opened = false">
+      Close
+    </button>
+  </div>
+</clr-modal>
+
+<clr-modal [(clrModalOpen)]="opened1" [clrModalClosable]="true">
+  <h3 class="modal-title text-center">Upload File</h3>
+  <div class="modal-body text-center">
+    <input type="file" name="title" id="title" accept="text/csv" (change)="uploadFile($event.target.files)"
+      class="clr-form-control" [(ngModel)]="csvModel" />
+  </div>
+  <div class="modal-footer">
+    <button type="button" [disabled]="!csvFile" class="btn btn-primary" (click)="uploadFileOnServer()">
+      UPload
+    </button>
+  </div>
+</clr-modal>
+
+
+<clr-modal [(clrModalOpen)]="allModal" [clrModalClosable]="true">
+  <h3 class="modal-title text-center" style="font-weight:bold;">Overall Sentiments of all tweets</h3>
+  <div class="modal-body text-center clr-row">
+    <div class="clr-col-6">
+      <img src="./assets/images/Positive.png" *ngIf="result" alt="Positive" style="height: 200px;width: 200px" />
+
+    </div>
+    <div class="clr-col-6">
+      <img src="./assets/images/Negetive.png" *ngIf="result" alt="Negtive" style="height: 200px;width: 200px" />
+    </div>
+    <div class="clr-col-6" style="margin-top: 4%;font-size: 20px;"> <span style="font-weight:bold;margin-top: 20px;"
+        *ngIf="result">{{result[1] | number:'1.2-2'}} %</span>
+    </div>
+    <div class="clr-col-6" style="margin-top: 4%;font-size: 20px;"> <span *ngIf="result"
+        style="font-weight:bold;">{{result[0] | number:'1.2-2'}} %</span>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="allModal = false">
+      Close
+    </button>
+  </div>
+</clr-modal>
+
+<ng-snotify></ng-snotify>
